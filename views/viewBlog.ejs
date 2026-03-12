@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title><%= blog.title %></title>
+    <style>
+        .blog-container{
+            max-width: 800px;
+            margin: auto;
+        }
+        .blog-image{
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .blog-title{
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .blog-body{
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-top: 20px;
+        }
+        textarea{
+            resize: none;
+        }
+
+        .comment-card{
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<%- include('./partials/nav') %>
+<div class="container mt-5 blog-container">
+    <% if (blog.createdBy) { %>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <img 
+                src="<%= blog.createdBy.profileImageUrl || '/images/defaultProfile.png' %>" 
+                width="45" 
+                height="45" 
+                class="rounded-circle me-2"
+            >
+            <strong><%= blog.createdBy.fullName %></strong>
+        </div>
+
+        <% if (user && String(blog.createdBy._id) === String(user._id)) { %>
+
+        <div class="d-flex gap-2">
+            <a href="/blog/edit/<%= blog._id %>" 
+               class="btn btn-sm btn-outline-secondary">
+               ✏️ Edit
+            </a>
+
+            <form action="/blog/delete/<%= blog._id %>" method="POST">
+                <button class="btn btn-sm btn-outline-danger">
+                    🗑 Delete
+                </button>
+            </form>
+        </div>
+
+        <% } %>
+
+    </div>
+    <% } %>
+
+
+    <div class="card shadow-sm p-4">
+
+        <h1 class="blog-title"><%= blog.title %></h1>
+
+        <img 
+            src="<%= blog.coverImageUrl %>" 
+            class="blog-image mb-3"
+            alt="blog image"
+        >
+
+        <div class="blog-body">
+            <pre><%= blog.body %></pre>
+        </div>
+
+    </div>
+
+</div>
+
+
+<hr class="my-5">
+
+
+<div class="container blog-container">
+
+    <h4 class="mb-4">Comments (<%= comments.length %>)</h4>
+
+
+    <!-- Comment Form -->
+
+    <% if (user) { %>
+
+    <div class="card shadow-sm mb-4 comment-card">
+        <div class="card-body">
+
+            <form action="/blog/comment/<%= blog._id %>" method="POST">
+
+                <div class="mb-3">
+                    <textarea 
+                        name="content"
+                        rows="3"
+                        class="form-control"
+                        placeholder="Write a comment..."
+                        required
+                    ></textarea>
+                </div>
+
+                <button class="btn btn-dark">
+                    Post Comment
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+    <% } else { %>
+
+    <p class="text-muted">
+        Please <a href="/user/signin">signin</a> to comment.
+    </p>
+
+    <% } %>
+
+
+    <!-- Comment List -->
+
+    <% if (comments && comments.length > 0) { %>
+
+        <% comments.forEach(comment => { %>
+
+        <div class="card mb-3 shadow-sm comment-card">
+            <div class="card-body">
+
+                <div class="d-flex align-items-center mb-2">
+
+                    <img 
+                        src="<%= comment.createdBy.profileImageUrl || '/images/defaultProfile.png' %>"
+                        width="40"
+                        height="40"
+                        class="rounded-circle me-2"
+                        style="object-fit:cover"
+                    >
+
+                    <strong><%= comment.createdBy.fullName %></strong>
+
+                </div>
+
+                <p class="mb-0">
+                    <%= comment.content %>
+                </p>
+
+            </div>
+        </div>
+
+        <% }) %>
+
+    <% } else { %>
+
+        <p class="text-muted">No comments yet. Be the first one.</p>
+
+    <% } %>
+
+</div>
+
+
+<%- include('./partials/script') %>
+
+</body>
+</html>
